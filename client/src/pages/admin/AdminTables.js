@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {
   Box, Typography, Grid, Card, CardContent, Chip, Button, IconButton,
   Dialog, DialogTitle, DialogContent, DialogActions, TextField, CircularProgress,
-  Select, MenuItem, FormControl, InputLabel, Tooltip,
+  Select, MenuItem, FormControl, InputLabel,
 } from '@mui/material';
 import { Add, QrCode2, Download, Refresh, TableRestaurant, People } from '@mui/icons-material';
 import { motion } from 'framer-motion';

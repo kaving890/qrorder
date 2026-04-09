@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   Box, Typography, Grid, Card, CardContent, Chip, Button, Select, MenuItem,
-  FormControl, InputLabel, IconButton, Divider, CircularProgress, TextField,
-  Dialog, DialogTitle, DialogContent, DialogActions, Tooltip, Badge,
+  FormControl, InputLabel, IconButton, Divider, CircularProgress,
+  Dialog, DialogTitle, DialogContent, DialogActions,
 } from '@mui/material';
-import { Refresh, ExpandMore, CheckCircle, Cancel, Visibility } from '@mui/icons-material';
+import { Refresh, CheckCircle, Cancel, Visibility } from '@mui/icons-material';
 import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
 import API from '../../utils/api';
@@ -144,7 +144,7 @@ export default function AdminOrders() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filterStatus, setFilterStatus] = useState('');
-  const [autoRefresh, setAutoRefresh] = useState(true);
+  const [autoRefresh] = useState(true);
 
   const fetchOrders = useCallback(async () => {
     try {
