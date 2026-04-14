@@ -4,6 +4,7 @@ const cors = require("cors");
 const morgan = require("morgan");
 const dotenv = require("dotenv");
 const path = require("path");
+const Table = require("./models/Table");
 
 dotenv.config();
 
@@ -25,6 +26,22 @@ app.use("/api/menu", require("./routes/menu"));
 app.use("/api/orders", require("./routes/orders"));
 app.use("/api/tables", require("./routes/tables"));
 app.use("/api/admin", require("./routes/admin"));
+
+// Regenerate missing QR code files on demand
+app.get("/qrcodes/table-:tableNumber.png", async (req, res, next) => {
+  try {
+    const table = await Table.findOne({
+      tableNumber: parseInt(req.params.tableNumber, 10),
+    });
+    if (table) {
+      const baseUrl = process.env.CLIENT_URL || "http://localhost:3000";
+      await table.ensureQRCodeFile(baseUrl);
+    }
+  } catch (err) {
+    console.error("QR regeneration error:", err);
+  }
+  next();
+});
 
 // Serve QR code static files
 app.use("/qrcodes", express.static(path.join(__dirname, "public", "qrcodes")));
