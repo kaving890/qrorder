@@ -4,7 +4,7 @@ import {
   Dialog, DialogTitle, DialogContent, DialogActions, TextField, Select, MenuItem,
   FormControl, InputLabel, Switch, FormControlLabel, CircularProgress, Tooltip,
 } from '@mui/material';
-import { Add, Edit, Delete, Spa, Whatshot, Star, Refresh } from '@mui/icons-material';
+import { Add, Edit, Delete, Spa, Whatshot } from '@mui/icons-material';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
 import API from '../../utils/api';

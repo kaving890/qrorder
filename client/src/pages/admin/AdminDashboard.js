@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Typography, Grid, Card, CardContent, CircularProgress, Chip, Avatar, Divider } from '@mui/material';
-import { TrendingUp, Receipt, TableRestaurant, MenuBook, AttachMoney, Pending } from '@mui/icons-material';
-import { BarChart, Bar, XAxis, YAxis, Tooltip as RTooltip, ResponsiveContainer, LineChart, Line, CartesianGrid, PieChart, Pie, Cell } from 'recharts';
+import { Receipt, TableRestaurant, AttachMoney, Pending } from '@mui/icons-material';
+
+import { BarChart, Bar, XAxis, YAxis, Tooltip as RTooltip, ResponsiveContainer, CartesianGrid, PieChart, Pie, Cell } from 'recharts';
 import { motion } from 'framer-motion';
 import API from '../../utils/api';
 
