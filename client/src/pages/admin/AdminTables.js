@@ -30,6 +30,16 @@ import { motion } from "framer-motion";
 import toast from "react-hot-toast";
 import API from "../../utils/api";
 
+const resolveQrCodeUrl = (url) => {
+  if (!url) return "";
+  if (/^https?:\/\//i.test(url)) return url;
+
+  // QR images are served by the API backend, so resolve relative paths
+  // against the configured API origin instead of the frontend origin.
+  const baseUrl = API.defaults.baseURL || window.location.origin;
+  return new URL(url, baseUrl).toString();
+};
+
 const STATUS_CONFIG = {
   available: {
     color: "#4CAF82",
@@ -124,6 +134,7 @@ export default function AdminTables() {
 
   const available = tables.filter((t) => t.status === "available").length;
   const occupied = tables.filter((t) => t.status === "occupied").length;
+  const qrImageUrl = resolveQrCodeUrl(qrPreview?.qrCodeUrl);
 
   const fieldSx = {
     mb: 2,
@@ -412,9 +423,9 @@ export default function AdminTables() {
                 display: "inline-block",
                 mb: 2,
               }}
-            >
+              >
               <img
-                src={qrPreview.qrCodeUrl}
+                src={qrImageUrl}
                 alt={`QR Table ${qrPreview.tableNumber}`}
                 style={{ width: 200, height: 200, display: "block" }}
               />
@@ -434,7 +445,7 @@ export default function AdminTables() {
           <Button
             onClick={() => {
               const a = document.createElement("a");
-              a.href = qrPreview.qrCodeUrl;
+              a.href = resolveQrCodeUrl(qrPreview.qrCodeUrl);
               a.download = `table-${qrPreview.tableNumber}-qr.png`;
               a.click();
             }}
