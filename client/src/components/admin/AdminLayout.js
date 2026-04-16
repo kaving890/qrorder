@@ -44,7 +44,7 @@ export default function AdminLayout() {
       <Box sx={{ px: collapsed ? 1 : 2.5, py: 3, display: 'flex', alignItems: 'center', gap: 1.5, justifyContent: collapsed ? 'center' : 'space-between' }}>
         {!collapsed && (
           <Box>
-            <Typography variant="h6" sx={{ fontFamily: '"Playfair Display",serif', color: '#C8A96E', lineHeight: 1 }}>La Cucina</Typography>
+            <Typography variant="h6" sx={{ fontFamily: '"Playfair Display",serif', color: '#C8A96E', lineHeight: 1 }}>Kavin G Restaurant</Typography>
             <Typography variant="caption" sx={{ color: '#555' }}>Admin Console</Typography>
           </Box>
         )}

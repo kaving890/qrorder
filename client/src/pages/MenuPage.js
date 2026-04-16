@@ -113,7 +113,7 @@ export default function MenuPage() {
         <Box display="flex" alignItems="center" justifyContent="space-between" mb={2}>
           <Box>
             <Typography variant="h4" sx={{ color: '#C8A96E', fontFamily: '"Playfair Display",serif', fontWeight: 700, lineHeight: 1 }}>
-              La Cucina
+              Kavin G Restaurant
             </Typography>
             <Typography variant="body2" sx={{ color: '#9E9E9E', mt: 0.5 }}>
               Table {tableNumber} · Fine Italian Dining

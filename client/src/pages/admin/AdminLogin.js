@@ -46,7 +46,7 @@ export default function AdminLogin() {
             <LockOutlined sx={{ color: '#C8A96E', fontSize: 28 }} />
           </Box>
           <Typography variant="h4" sx={{ fontFamily: '"Playfair Display",serif', color: '#F5F0E8' }}>Admin Portal</Typography>
-          <Typography sx={{ color: '#9E9E9E', mt: 0.5, fontSize: 14 }}>La Cucina Restaurant System</Typography>
+          <Typography sx={{ color: '#9E9E9E', mt: 0.5, fontSize: 14 }}>Kavin G Restaurant System</Typography>
         </Box>
 
         <Box component="form" onSubmit={handleSubmit} sx={{ bgcolor: '#161616', borderRadius: 3, border: '1px solid rgba(255,255,255,0.08)', p: 4 }}>
