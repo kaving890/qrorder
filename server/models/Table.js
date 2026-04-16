@@ -22,7 +22,7 @@ const tableSchema = new mongoose.Schema(
 );
 
 tableSchema.methods.generateQRCode = async function (baseUrl) {
-  const url = `${baseUrl}/menu?table=${this.tableNumber}`;
+  const url = new URL(`/#/menu?table=${this.tableNumber}`, baseUrl).toString();
   const dir = path.join(__dirname, "../public/qrcodes");
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
   const filePath = path.join(dir, `table-${this.tableNumber}.png`);

@@ -17,7 +17,7 @@ API.interceptors.response.use(
     if (err.response?.status === 401) {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
-      window.location.href = '/admin/login';
+      window.location.hash = '#/admin/login';
     }
     return Promise.reject(err);
   }

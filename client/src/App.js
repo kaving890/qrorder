@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { Toaster } from 'react-hot-toast';
@@ -67,7 +67,7 @@ function App() {
       <CssBaseline />
       <AuthProvider>
         <CartProvider>
-          <BrowserRouter>
+          <HashRouter>
             <Toaster
               position="top-center"
               toastOptions={{
@@ -102,7 +102,7 @@ function App() {
               <Route path="/" element={<Navigate to="/admin/dashboard" replace />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
-          </BrowserRouter>
+          </HashRouter>
         </CartProvider>
       </AuthProvider>
     </ThemeProvider>

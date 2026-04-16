@@ -9,6 +9,7 @@ const Table = require("./models/Table");
 dotenv.config();
 
 const app = express();
+const getFrontendUrl = () => process.env.CLIENT_URL || "http://localhost:3000";
 
 // Middleware
 app.use(
@@ -34,8 +35,8 @@ app.get("/qrcodes/table-:tableNumber.png", async (req, res, next) => {
       tableNumber: parseInt(req.params.tableNumber, 10),
     });
     if (table) {
-      const baseUrl = process.env.CLIENT_URL || "http://localhost:3000";
-      await table.ensureQRCodeFile(baseUrl);
+      await table.generateQRCode(getFrontendUrl());
+      await table.save();
     }
   } catch (err) {
     console.error("QR regeneration error:", err);
@@ -70,7 +71,19 @@ mongoose
   )
   .then(() => {
     console.log("✅ MongoDB connected");
-    app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+    return Table.find({ isActive: true })
+      .then(async (tables) => {
+        const baseUrl = getFrontendUrl();
+        await Promise.all(
+          tables.map(async (table) => {
+            await table.generateQRCode(baseUrl);
+            await table.save();
+          }),
+        );
+      })
+      .then(() => {
+        app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+      });
   })
   .catch((err) => {
     console.error("❌ MongoDB connection error:", err);
