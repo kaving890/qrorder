@@ -71,7 +71,7 @@ export default function AdminLogin() {
 
           <Box sx={{ mt: 2.5, p: 2, bgcolor: 'rgba(200,169,110,0.05)', borderRadius: 2, border: '1px solid rgba(200,169,110,0.1)' }}>
             <Typography variant="caption" sx={{ color: '#666', display: 'block', textAlign: 'center' }}>
-              Demo credentials: admin@lacucina.com / admin123
+              Demo credentials: admin@gmail.com / admin123
             </Typography>
           </Box>
         </Box>
