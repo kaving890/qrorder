@@ -17,6 +17,7 @@ import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminOrders from './pages/admin/AdminOrders';
 import AdminMenu from './pages/admin/AdminMenu';
 import AdminTables from './pages/admin/AdminTables';
+import AdminAnalytics from './pages/admin/AdminAnalytics';
 import AdminLayout from './components/admin/AdminLayout';
 
 const darkTheme = createTheme({
@@ -96,6 +97,7 @@ function App() {
                 <Route path="orders" element={<AdminOrders />} />
                 <Route path="menu" element={<AdminMenu />} />
                 <Route path="tables" element={<AdminTables />} />
+                <Route path="analysis" element={<AdminAnalytics />} />
               </Route>
 
               {/* Default redirect */}

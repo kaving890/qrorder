@@ -6,7 +6,7 @@ import {
 } from '@mui/material';
 import {
   Dashboard, RestaurantMenu, Receipt, TableBar, Menu as MenuIcon,
-  Logout, ChevronLeft, QrCode2,
+  Logout, ChevronLeft, Assessment,
 } from '@mui/icons-material';
 import { useAuth } from '../../context/AuthContext';
 import toast from 'react-hot-toast';
@@ -19,6 +19,7 @@ const NAV_ITEMS = [
   { label: 'Live Orders', icon: <Receipt />, path: '/admin/orders' },
   { label: 'Menu Manager', icon: <RestaurantMenu />, path: '/admin/menu' },
   { label: 'Tables & QR', icon: <TableBar />, path: '/admin/tables' },
+  { label: 'Analysis', icon: <Assessment />, path: '/admin/analysis' },
 ];
 
 export default function AdminLayout() {

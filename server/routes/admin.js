@@ -94,7 +94,22 @@ router.get('/analytics', protect, adminOnly, async (req, res) => {
       { $sort: { revenue: -1 } },
     ]);
 
-    res.json({ revenueByDay, ordersByStatus, categoryRevenue });
+    const topSellers = await Order.aggregate([
+      { $match: { createdAt: { $gte: startDate }, status: { $ne: 'cancelled' } } },
+      { $unwind: '$items' },
+      {
+        $group: {
+          _id: '$items.menuItem',
+          name: { $first: '$items.name' },
+          totalQuantity: { $sum: '$items.quantity' },
+          revenue: { $sum: '$items.subtotal' },
+        },
+      },
+      { $sort: { totalQuantity: -1 } },
+      { $limit: 10 },
+    ]);
+
+    res.json({ revenueByDay, ordersByStatus, categoryRevenue, topSellers });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
