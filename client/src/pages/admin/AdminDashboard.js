@@ -6,7 +6,7 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip as RTooltip, ResponsiveContainer, 
 import { motion } from 'framer-motion';
 import API from '../../utils/api';
 
-const STATUS_COLORS = { pending: '#F5A623', confirmed: '#5B9CF6', preparing: '#A78BFA', ready: '#4CAF82', served: '#9E9E9E', cancelled: '#E05C5C' };
+const STATUS_COLORS = { pending: '#F5A623', confirmed: '#5B9CF6', preparing: '#A78BFA', ready: '#4CAF82', served: '#9E9E9E', billing: '#C8A96E', completed: '#4CAF50', cancelled: '#E05C5C' };
 const PIE_COLORS = ['#C8A96E', '#5B9CF6', '#4CAF82', '#E05C5C', '#A78BFA'];
 
 const StatCard = ({ icon, label, value, sub, color = '#C8A96E', delay = 0 }) => (

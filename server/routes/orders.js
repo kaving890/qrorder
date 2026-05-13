@@ -102,8 +102,8 @@ router.get('/:id', async (req, res) => {
 // PATCH /api/orders/:id/status - update order status
 router.patch('/:id/status', protect, async (req, res) => {
   try {
-    const { status, note } = req.body;
-    const validStatuses = ['pending', 'confirmed', 'preparing', 'ready', 'served', 'cancelled'];
+    const { status, note, cancellationReason } = req.body;
+    const validStatuses = ['pending', 'confirmed', 'preparing', 'ready', 'served', 'billing', 'completed', 'cancelled'];
     if (!validStatuses.includes(status)) {
       return res.status(400).json({ message: 'Invalid status.' });
     }
@@ -111,9 +111,12 @@ router.patch('/:id/status', protect, async (req, res) => {
     if (!order) return res.status(404).json({ message: 'Order not found.' });
 
     order.status = status;
+    if (status === 'cancelled' && cancellationReason) {
+      order.cancellationReason = cancellationReason;
+    }
     order.statusHistory.push({ status, timestamp: new Date(), note: note || '' });
 
-    if (status === 'served' || status === 'cancelled') {
+    if (status === 'completed' || status === 'cancelled') {
       await Table.findOneAndUpdate(
         { tableNumber: order.tableNumber },
         { status: 'available', currentOrder: null }
@@ -147,7 +150,7 @@ router.get('/table/:tableNumber', async (req, res) => {
   try {
     const orders = await Order.find({
       tableNumber: req.params.tableNumber,
-      status: { $nin: ['served', 'cancelled'] },
+      status: { $nin: ['completed', 'cancelled'] },
     }).sort({ createdAt: -1 }).populate('items.menuItem', 'name image');
     res.json(orders);
   } catch (err) {

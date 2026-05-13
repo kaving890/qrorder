@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Box, Typography, CircularProgress, Button, Divider } from '@mui/material';
-import { CheckCircle, RadioButtonUnchecked, AccessTime, DinnerDining } from '@mui/icons-material';
+import { CheckCircle } from '@mui/icons-material';
 import { motion } from 'framer-motion';
 import API from '../utils/api';
 
@@ -11,6 +11,8 @@ const STATUS_STEPS = [
   { key: 'preparing', label: 'Preparing', icon: '👨‍🍳', desc: "Chef is preparing your food" },
   { key: 'ready', label: 'Ready', icon: '🔔', desc: 'Your order is ready to serve' },
   { key: 'served', label: 'Served', icon: '🍽️', desc: 'Enjoy your meal!' },
+  { key: 'billing', label: 'Billing', icon: '🧾', desc: 'Preparing your bill' },
+  { key: 'completed', label: 'Completed', icon: '✨', desc: 'Thank you for visiting!' },
 ];
 
 const STATUS_INDEX = Object.fromEntries(STATUS_STEPS.map((s, i) => [s.key, i]));
@@ -20,18 +22,18 @@ export default function OrderStatusPage() {
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchOrder = () => {
+  const fetchOrder = useCallback(() => {
     API.get(`/orders/${orderId}`)
       .then(({ data }) => setOrder(data))
       .catch(console.error)
       .finally(() => setLoading(false));
-  };
+  }, [orderId]);
 
   useEffect(() => {
     fetchOrder();
     const interval = setInterval(fetchOrder, 15000); // poll every 15s
     return () => clearInterval(interval);
-  }, [orderId]);
+  }, [fetchOrder]);
 
   const currentIdx = order ? (STATUS_INDEX[order.status] ?? 0) : 0;
 
@@ -51,6 +53,20 @@ export default function OrderStatusPage() {
           <Typography sx={{ color: '#9E9E9E', mb: 4, textAlign: 'center' }}>
             {order.orderNumber} · Table {order.tableNumber}
           </Typography>
+        )}
+
+        {order && order.status === 'cancelled' && (
+          <Box sx={{ bgcolor: 'rgba(224,92,92,0.08)', borderRadius: 3, border: '1px solid rgba(224,92,92,0.2)', p: 3, mb: 3, textAlign: 'center' }}>
+            <Typography variant="h6" sx={{ color: '#E05C5C', fontWeight: 700, mb: 1 }}>
+              Order Cancelled
+            </Typography>
+            <Typography variant="body2" sx={{ color: '#F5F0E8', mb: 1 }}>
+              Reason: {order.cancellationReason || 'No reason provided.'}
+            </Typography>
+            <Typography variant="caption" sx={{ color: '#9E9E9E' }}>
+              We apologize for the inconvenience. Please contact our staff if you have any questions.
+            </Typography>
+          </Box>
         )}
 
         {/* Progress Steps */}
@@ -86,7 +102,7 @@ export default function OrderStatusPage() {
                   </Box>
                   {active && <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: '#C8A96E', animation: 'pulse 1s infinite' }} />}
                 </Box>
-                {idx < STATUS_STEPS.length - 2 && (
+                {idx < STATUS_STEPS.length - 1 && (
                   <Box sx={{ ml: 2.2, width: 2, height: 24, bgcolor: done && idx < currentIdx ? 'rgba(76,175,130,0.4)' : 'rgba(255,255,255,0.06)', my: 0.5 }} />
                 )}
               </Box>

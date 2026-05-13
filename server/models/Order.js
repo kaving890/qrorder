@@ -15,7 +15,7 @@ const orderSchema = new mongoose.Schema({
   items: [orderItemSchema],
   status: {
     type: String,
-    enum: ['pending', 'confirmed', 'preparing', 'ready', 'served', 'cancelled'],
+    enum: ['pending', 'confirmed', 'preparing', 'ready', 'served', 'billing', 'completed', 'cancelled'],
     default: 'pending',
   },
   customerName: { type: String, default: 'Guest' },
@@ -27,6 +27,7 @@ const orderSchema = new mongoose.Schema({
   specialInstructions: { type: String, default: '' },
   estimatedTime: { type: Number, default: 20 }, // minutes
   assignedStaff: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  cancellationReason: { type: String, default: '' },
   statusHistory: [{
     status: String,
     timestamp: { type: Date, default: Date.now },

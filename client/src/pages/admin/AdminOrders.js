@@ -19,8 +19,9 @@ import {
   DialogContent,
   DialogActions,
   Tooltip,
+  TextField,
 } from "@mui/material";
-import { Refresh, CheckCircle, Cancel, Visibility } from "@mui/icons-material";
+import { Refresh, CheckCircle, Cancel, Visibility, Print } from "@mui/icons-material";
 import { motion, AnimatePresence } from "framer-motion";
 import toast from "react-hot-toast";
 import API from "../../utils/api";
@@ -54,6 +55,18 @@ const STATUS_CONFIG = {
     color: "#9E9E9E",
     bg: "rgba(158,158,158,0.12)",
     label: "Served",
+    next: "billing",
+  },
+  billing: {
+    color: "#C8A96E",
+    bg: "rgba(200,169,110,0.12)",
+    label: "Billing",
+    next: "completed",
+  },
+  completed: {
+    color: "#4CAF50",
+    bg: "rgba(76,175,80,0.12)",
+    label: "Completed",
     next: null,
   },
   cancelled: {
@@ -69,11 +82,15 @@ const NEXT_LABEL = {
   preparing: "Start Preparing",
   ready: "Mark Ready",
   served: "Mark Served",
+  billing: "Go to Billing",
+  completed: "Complete Order",
 };
 
 function OrderCard({ order, onStatusUpdate }) {
   const [loading, setLoading] = useState(false);
   const [detailOpen, setDetailOpen] = useState(false);
+  const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
+  const [cancelReason, setCancelReason] = useState("");
   const cfg = STATUS_CONFIG[order.status] || STATUS_CONFIG.pending;
 
   const handleAdvance = async () => {
@@ -86,10 +103,15 @@ function OrderCard({ order, onStatusUpdate }) {
     }
   };
 
-  const handleCancel = async () => {
+  const handleConfirmCancel = async () => {
+    if (!cancelReason.trim()) {
+      toast.error("Please provide a reason for cancellation");
+      return;
+    }
     setLoading(true);
     try {
-      await onStatusUpdate(order._id, "cancelled");
+      await onStatusUpdate(order._id, "cancelled", { cancellationReason: cancelReason });
+      setCancelDialogOpen(false);
     } finally {
       setLoading(false);
     }
@@ -191,51 +213,188 @@ function OrderCard({ order, onStatusUpdate }) {
             >
               £{order.total.toFixed(2)}
             </Typography>
-            {order.status !== "served" && order.status !== "cancelled" && (
-              <Box display="flex" gap={1}>
-                {order.status !== "cancelled" && order.status !== "served" && (
+            <Box display="flex" gap={1}>
+              {order.status === "billing" && (
+                <Tooltip title="Print Bill">
+                  <IconButton
+                    size="small"
+                    onClick={() => {
+                      const printContent = document.getElementById(`bill-${order._id}`);
+                      const winPrint = window.open('', '', 'left=0,top=0,width=800,height=900,toolbar=0,scrollbars=0,status=0');
+                      winPrint.document.write(`
+                        <html>
+                          <head>
+                            <title>Print Bill - ${order.orderNumber}</title>
+                            <style>
+                              body { font-family: 'Courier New', Courier, monospace; width: 80mm; padding: 20px; margin: 0; color: #000; background: #fff; }
+                              .header { text-align: center; border-bottom: 1px dashed #000; padding-bottom: 15px; margin-bottom: 15px; }
+                              .item { display: flex; justify-content: space-between; margin-bottom: 8px; }
+                              .totals { border-top: 1px dashed #000; padding-top: 10px; margin-top: 15px; }
+                              .footer { text-align: center; margin-top: 30px; font-size: 11px; }
+                              @media print { body { width: 80mm; padding: 10px; } }
+                            </style>
+                          </head>
+                          <body>
+                            ${printContent.innerHTML}
+                            <script>
+                              setTimeout(() => {
+                                window.print();
+                                window.close();
+                              }, 500);
+                            </script>
+                          </body>
+                        </html>
+                      `);
+                      winPrint.document.close();
+                    }}
+                    sx={{ color: "#C8A96E", "&:hover": { bgcolor: "rgba(200,169,110,0.1)" } }}
+                  >
+                    <Print fontSize="small" />
+                  </IconButton>
+                </Tooltip>
+              )}
+              {order.status !== "served" && order.status !== "billing" && order.status !== "completed" && order.status !== "cancelled" && (
+                <>
                   <Tooltip title="Cancel order">
                     <IconButton
                       size="small"
-                      onClick={handleCancel}
+                      onClick={() => setCancelDialogOpen(true)}
                       disabled={loading}
                       sx={{ color: "#555", "&:hover": { color: "#E05C5C" } }}
                     >
                       <Cancel fontSize="small" />
                     </IconButton>
                   </Tooltip>
-                )}
-                {cfg.next && (
-                  <Button
-                    size="small"
-                    variant="contained"
-                    onClick={handleAdvance}
-                    disabled={loading}
-                    startIcon={
-                      loading ? (
-                        <CircularProgress size={12} sx={{ color: "#0D0D0D" }} />
-                      ) : (
-                        <CheckCircle fontSize="small" />
-                      )
-                    }
-                    sx={{
-                      bgcolor: cfg.color,
-                      color: "#0D0D0D",
-                      fontWeight: 700,
-                      borderRadius: 2,
-                      fontSize: 11,
-                      py: 0.5,
-                      "&:hover": { filter: "brightness(0.9)" },
-                    }}
-                  >
-                    {NEXT_LABEL[cfg.next] || cfg.next}
-                  </Button>
-                )}
-              </Box>
-            )}
+                </>
+              )}
+              {cfg.next && (
+                <Button
+                  size="small"
+                  variant="contained"
+                  onClick={handleAdvance}
+                  disabled={loading}
+                  startIcon={
+                    loading ? (
+                      <CircularProgress size={12} sx={{ color: "#0D0D0D" }} />
+                    ) : (
+                      <CheckCircle fontSize="small" />
+                    )
+                  }
+                  sx={{
+                    bgcolor: cfg.color,
+                    color: "#0D0D0D",
+                    fontWeight: 700,
+                    borderRadius: 2,
+                    fontSize: 11,
+                    py: 0.5,
+                    "&:hover": { filter: "brightness(0.9)" },
+                  }}
+                >
+                  {NEXT_LABEL[cfg.next] || cfg.next}
+                </Button>
+              )}
+            </Box>
           </Box>
+          
+          {/* Hidden Bill for Printing */}
+          <div id={`bill-${order._id}`} style={{ display: 'none' }}>
+            <div className="header">
+              <h2 style={{ margin: '0 0 5px 0', fontSize: '18px' }}>QR ORDER</h2>
+              <p style={{ margin: '0', fontSize: '12px' }}>PREMIUM RESTAURANT</p>
+              <p style={{ margin: '0', fontSize: '12px' }}>TAX INVOICE</p>
+            </div>
+            <div style={{ marginBottom: '15px', fontSize: '12px' }}>
+              <div className="item"><span>Order No:</span> <span>{order.orderNumber}</span></div>
+              <div className="item"><span>Table:</span> <span>Table {order.tableNumber}</span></div>
+              <div className="item"><span>Date:</span> <span>{new Date(order.createdAt).toLocaleString()}</span></div>
+              <div className="item"><span>Guest:</span> <span>{order.customerName}</span></div>
+            </div>
+            <div style={{ borderBottom: '1px dashed #000', marginBottom: '10px' }}></div>
+            {order.items.map((item, i) => (
+              <div key={i} className="item" style={{ fontSize: '12px' }}>
+                <span style={{ flex: 1 }}>{item.quantity}x {item.name}</span>
+                <span style={{ marginLeft: '10px' }}>£{item.subtotal.toFixed(2)}</span>
+              </div>
+            ))}
+            <div className="totals">
+              <div className="item" style={{ fontSize: '12px' }}>
+                <span>Subtotal:</span>
+                <span>£{order.subtotal.toFixed(2)}</span>
+              </div>
+              <div className="item" style={{ fontSize: '12px' }}>
+                <span>Tax:</span>
+                <span>£{order.tax.toFixed(2)}</span>
+              </div>
+              <div className="item" style={{ fontSize: '14px', fontWeight: 'bold', marginTop: '5px' }}>
+                <span>TOTAL:</span>
+                <span>£{order.total.toFixed(2)}</span>
+              </div>
+            </div>
+            <div className="footer">
+              <p style={{ fontWeight: 'bold', marginBottom: '5px' }}>THANK YOU!</p>
+              <p style={{ margin: '0' }}>Please visit us again.</p>
+              <p style={{ marginTop: '10px', fontSize: '9px' }}>www.qr-order.com</p>
+            </div>
+          </div>
         </CardContent>
       </Card>
+
+      {/* Cancellation Dialog */}
+      <Dialog
+        open={cancelDialogOpen}
+        onClose={() => setCancelDialogOpen(false)}
+        maxWidth="xs"
+        fullWidth
+        PaperProps={{
+          sx: {
+            bgcolor: "#161616",
+            border: "1px solid rgba(224,92,92,0.2)",
+            borderRadius: 3,
+          },
+        }}
+      >
+        <DialogTitle sx={{ color: "#E05C5C", fontWeight: 700 }}>
+          Cancel Order {order.orderNumber}
+        </DialogTitle>
+        <DialogContent>
+          <Typography variant="body2" sx={{ color: "#9E9E9E", mb: 2 }}>
+            Please provide a reason for cancelling this order. This reason will be shown to the customer.
+          </Typography>
+          <TextField
+            fullWidth
+            multiline
+            rows={3}
+            placeholder="e.g., Item out of stock, Kitchen closed, etc."
+            value={cancelReason}
+            onChange={(e) => setCancelReason(e.target.value)}
+            sx={{
+              "& .MuiOutlinedInput-root": {
+                color: "#F5F0E8",
+                "& fieldset": { borderColor: "rgba(255,255,255,0.1)" },
+                "&:hover fieldset": { borderColor: "rgba(255,255,255,0.2)" },
+              },
+            }}
+          />
+        </DialogContent>
+        <DialogActions sx={{ px: 3, pb: 2.5 }}>
+          <Button onClick={() => setCancelDialogOpen(false)} sx={{ color: "#666" }}>
+            Back
+          </Button>
+          <Button
+            variant="contained"
+            onClick={handleConfirmCancel}
+            disabled={loading}
+            sx={{
+              bgcolor: "#E05C5C",
+              color: "#fff",
+              fontWeight: 700,
+              "&:hover": { bgcolor: "#c04b4b" },
+            }}
+          >
+            Confirm Cancel
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       {/* Detail Dialog */}
       <Dialog
@@ -263,6 +422,24 @@ function OrderCard({ order, onStatusUpdate }) {
           >
             {order.customerName} · {new Date(order.createdAt).toLocaleString()}
           </Typography>
+          {order.status === "cancelled" && order.cancellationReason && (
+            <Box
+              sx={{
+                mb: 2,
+                p: 1.5,
+                bgcolor: "rgba(224,92,92,0.08)",
+                borderRadius: 2,
+                border: "1px solid rgba(224,92,92,0.2)",
+              }}
+            >
+              <Typography variant="caption" sx={{ color: "#E05C5C", fontWeight: 700, display: "block" }}>
+                Cancellation Reason:
+              </Typography>
+              <Typography variant="body2" sx={{ color: "#F5F0E8" }}>
+                {order.cancellationReason}
+              </Typography>
+            </Box>
+          )}
           {order.items.map((item, i) => (
             <Box key={i} mb={1.5}>
               <Box display="flex" justifyContent="space-between">
@@ -365,9 +542,9 @@ export default function AdminOrders() {
     return () => clearInterval(interval);
   }, [fetchOrders, autoRefresh]);
 
-  const handleStatusUpdate = async (orderId, newStatus) => {
+  const handleStatusUpdate = async (orderId, newStatus, payload = {}) => {
     try {
-      await API.patch(`/orders/${orderId}/status`, { status: newStatus });
+      await API.patch(`/orders/${orderId}/status`, { status: newStatus, ...payload });
       toast.success(`Order marked as ${newStatus}`);
       fetchOrders();
     } catch (err) {
@@ -381,7 +558,7 @@ export default function AdminOrders() {
     return acc;
   }, {});
 
-  const activeStatuses = ["pending", "confirmed", "preparing", "ready"];
+  const activeStatuses = ["pending", "confirmed", "preparing", "ready", "served", "billing"];
   const activeOrders = orders.filter((o) => activeStatuses.includes(o.status));
 
   return (
@@ -465,11 +642,11 @@ export default function AdminOrders() {
         </Box>
       ) : (
         <Grid container spacing={2}>
-          {["pending", "confirmed", "preparing", "ready"].map((status) => {
+          {["pending", "confirmed", "preparing", "ready", "served", "billing"].map((status) => {
             const cfg = STATUS_CONFIG[status];
             const statusOrders = grouped[status] || [];
             return (
-              <Grid item xs={12} sm={6} lg={3} key={status}>
+              <Grid item xs={12} sm={6} md={4} lg={2} key={status}>
                 <Box
                   sx={{
                     bgcolor: "#0F0F0F",

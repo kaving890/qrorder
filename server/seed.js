@@ -37,7 +37,7 @@ async function seed() {
     }
 
     console.log('\n🚀 Seed complete! Start the server with: npm run dev');
-    console.log('📋 Admin login: admin@lacucina.com / admin123');
+    console.log('📋 Admin login: admin@gmail.com / admin123');
     console.log(`📱 Customer menu: ${CLIENT_URL}/menu?table=1`);
   } catch (err) {
     console.error('❌ Seed error:', err);
